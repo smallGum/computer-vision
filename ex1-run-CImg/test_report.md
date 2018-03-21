@@ -4,9 +4,9 @@ This project read a BMP image and display it on the screen directly or after doi
 
 ## Test Environment
 
-Operating System: Ubuntu 16.04.1 LTS
-Compiler:  Linux version 4.4.0-116-generic (buildd@lgw01-amd64-021) (gcc version 5.4.0 20160609 (Ubuntu 5.4.0-6ubuntu1~16.04.9) )
-test tool: googletest
++ Operating System: Ubuntu 16.04.1 LTS
++ Compiler:  Linux version 4.4.0-116-generic (buildd@lgw01-amd64-021) (gcc version 5.4.0 20160609 (Ubuntu 5.4.0-6ubuntu1~16.04.9) )
++ Test tool: googletest
 
 ## Test Data
 
