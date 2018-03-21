@@ -14,3 +14,6 @@ hw1_main: $(CPP_FILE) $(HEADER_FILE)
 
 hw1_test: $(TEST_FILE) ./src/hw1.cpp $(HEADER_FILE)
 	g++ -Wall -o hw1_test $(HEADER_FILE) ./src/hw1.cpp $(TEST_FILE) $(TEST_LIB) $(THREAD_FILE) $(IMG_LIB)
+
+clean:
+	rm ./header/*.gch
