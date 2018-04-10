@@ -10,6 +10,9 @@
 #define _CANNY_
 
 #include <string>
+#include "CImg.h"
+
+using namespace cimg_library;
 
 // images IO class
 // read the source image and output its grey image
@@ -23,7 +26,7 @@ private:
 
 public:
   // constructor, read the source image from the file
-  imagesIO(char* filename);
+  imageIO(char* filename);
   // get the source image
   CImg<unsigned char> getSrcImg();
   // get the grey image
@@ -50,7 +53,7 @@ private:
   // release all the buffer allocated
   void killbuffers();
   // compute the gradients of the image
-  int computeGradients(float kernelRadius, int kernelWidth);
+  void computeGradients(float kernelRadius, int kernelWidth);
   // perform hysteresis for the edge image
   void performHysteresis(int low, int high);
   // follow function
