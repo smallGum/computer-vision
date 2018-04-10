@@ -12,6 +12,12 @@
 
 using namespace std;
 
+#define ffabs(x) ( (x) >= 0 ? (x) : -(x) )
+#define GAUSSIAN_CUT_OFF 0.005f
+#define MAGNITUDE_SCALE 100.0f
+#define MAGNITUDE_LIMIT 1000.0f
+#define MAGNITUDE_MAX ((int) (MAGNITUDE_SCALE * MAGNITUDE_LIMIT))
+
 // ----------------------imageIO class-----------------------------
 // transform the source image into grey image
 void imageIO::toGrey() {
@@ -32,8 +38,8 @@ void imageIO::toGrey() {
 
 // constructor read the source image from the file
 // param: filename name of the file
-imageIO::imageIO(char* filename) {
-  srcImg = CImg<unsigned char>(filename);
+imageIO::imageIO(const char* filename) {
+  srcImg = CImg<unsigned char>("images/lena.bmp");
   toGrey();
 }
 
@@ -57,7 +63,7 @@ void canny::allocatebuffers(unsigned char *grey) {
   xGradient = new float[width * height];
   yGradient = new float[width * height];
 
-  if (!data || !idata || !magnitude || !xConv || !yConv || !xGradient || !yGradient) {
+  if (!data || !answer || !idata || !magnitude || !xConv || !yConv || !xGradient || !yGradient) {
     catchErr("fail to allocate buffers!");
   }
 
@@ -92,7 +98,7 @@ void canny::computeGradients(float kernelRadius, int kernelWidth) {
 	kernel = new float[kernelWidth];
 	diffKernel = new float[kernelWidth];
 	if(!kernel || !diffKernel)
-		catchErr("fail to create kernel")
+		catchErr("fail to create kernel");
 
 	/* initialise the Gaussian kernel */
 	for (kwidth = 0; kwidth < kernelWidth; kwidth++)
@@ -325,10 +331,41 @@ float canny::gaussian(float x, float sigma) { return (float) exp(-(x * x) / (2.0
 
 void canny::catchErr(std::string error) {
   cout << error << endl;
+  killbuffers();
   exit(1);
 }
 
-canny::canny(CImg<unsigned char>& greyImg) { canny(greyImg, 2.5f, 7.5f, 2.0f, 16, 0); }
+//canny::canny(CImg<unsigned char>& greyImg) { this(greyImg, 2.5f, 7.5f, 2.0f, 16, 0); }
 
-canny::canny(CImg<unsigned char>& greyImg, float lowThreshold, float highthreshold, float gaussiankernelradius, int gaussiankernelwidth, int contrastnormalised) {}
+canny::canny(CImg<unsigned char>& greyImg, float lowThreshold, float highthreshold, float gaussiankernelradius, int gaussiankernelwidth, int contrastnormalised) {
+  height = greyImg.height();
+  width = greyImg.width();
+  unsigned char * grey = greyImg.data();
+  answer = 0;
+  int low, high;
+  int i;
+
+  allocatebuffers(grey);
+
+  if (contrastnormalised)
+    normalizeContrast();
+
+  computeGradients(gaussiankernelradius, gaussiankernelwidth);
+
+  low = (int) (lowThreshold * MAGNITUDE_SCALE + 0.5f);
+  high = (int) ( highthreshold * MAGNITUDE_SCALE + 0.5f);
+  performHysteresis(low, high);
+
+  for(i=0;i<width*height;i++)
+    answer[i] = idata[i] > 0 ? 1 : 0;
+}
+
+CImg<unsigned char> canny::getEdgeImg() {
+  CImg<unsigned char> rst(width, height, 1, 1);
+  memcpy(rst._data, answer, width * height);
+  return rst;
+}
+
+canny::~canny() { killbuffers(); }
+
 // ----------------------canny class-----------------------------

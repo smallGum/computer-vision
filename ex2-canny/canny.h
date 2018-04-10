@@ -26,7 +26,7 @@ private:
 
 public:
   // constructor, read the source image from the file
-  imageIO(char* filename);
+  imageIO(const char* filename);
   // get the source image
   CImg<unsigned char> getSrcImg();
   // get the grey image
@@ -68,12 +68,12 @@ private:
   void catchErr(std::string error);
 
 public:
-  // constructor, read the grey image and initilize all the variables
-  canny(CImg<unsigned char>& greyImg);
   // constructor overload, canny's parameters are defined by user
-  canny(CImg<unsigned char>& greyImg, float lowThreshold, float highthreshold, float gaussiankernelradius, int gaussiankernelwidth, int contrastnormalised);
+  canny(CImg<unsigned char>& greyImg, float lowThreshold = 2.5f, float highthreshold = 7.5f, float gaussiankernelradius = 2.0f, int gaussiankernelwidth = 16, int contrastnormalised = 0);
   // get the final edge image
   CImg<unsigned char> getEdgeImg();
+
+  ~canny();
 };
 
 #endif
