@@ -4,12 +4,14 @@
 using namespace std;
 
 int main() {
+  // set the parameters
   float lowThreshold = 2.5f;
   float highthreshold = 7.5f;
   float gaussiankernelradius = 2.0f;
   int gaussiankernelwidth = 16;
   int contrastnormalised = 0;
 
+  // get the opertaion from user
   while (true) {
     cout << "+---------------------------------+" << endl;
     cout << "|     My Packaged Canny Program   |" << endl;
@@ -26,6 +28,7 @@ int main() {
     int task;
     char* filename;
     cin >> task;
+    cin.get();
 
     switch(task) {
         case 0:
@@ -47,10 +50,19 @@ int main() {
             break;
     }
 
+    cout << "Please enter lowThreshold, highthreshold, gaussiankernelradius, gaussiankernelwidth, contrastnormalised in order:" << endl;
+    cin >> lowThreshold >> highthreshold >> gaussiankernelradius >> gaussiankernelwidth >> contrastnormalised;
+    cin.get();
+
+    // read the source image
     imageIO img(filename);
+    // get the grey image
     CImg<unsigned char> grey = img.getGreyImg();
+    // canny detector
     canny edge(grey, lowThreshold, highthreshold, gaussiankernelradius, gaussiankernelwidth, contrastnormalised);
+    // get edge image
     CImg<unsigned char> rst = edge.getEdgeImg();
+    // display the edge image
     rst.display();
   }
 
