@@ -72,7 +72,7 @@ public:
   canny(CImg<unsigned char>& greyImg, float lowThreshold = 2.5f, float highthreshold = 7.5f, float gaussiankernelradius = 2.0f, int gaussiankernelwidth = 16, int contrastnormalised = 0);
   // get the final edge image
   CImg<unsigned char> getEdgeImg();
-
+  // destructor
   ~canny();
 };
 

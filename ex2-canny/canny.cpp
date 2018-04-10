@@ -39,7 +39,7 @@ void imageIO::toGrey() {
 // constructor read the source image from the file
 // param: filename name of the file
 imageIO::imageIO(const char* filename) {
-  srcImg = CImg<unsigned char>("images/lena.bmp");
+  srcImg = CImg<unsigned char>(filename);
   toGrey();
 }
 
@@ -53,6 +53,8 @@ CImg<unsigned char> imageIO::getGreyImg() { return greyImg; }
 // ----------------------imageIO class-----------------------------
 
 // ----------------------canny class-----------------------------
+// allocate buffers for related variables
+// param: grey grey image
 void canny::allocatebuffers(unsigned char *grey) {
   data = new unsigned char[width * height];
   answer = new unsigned char[width * height];
@@ -70,6 +72,7 @@ void canny::allocatebuffers(unsigned char *grey) {
   memcpy(data, grey, width * height);
 }
 
+// release all the buffers allocated
 void canny::killbuffers() {
   delete [] data;
   delete [] answer;
@@ -81,6 +84,9 @@ void canny::killbuffers() {
   delete [] yGradient;
 }
 
+// compute the gradients of the grey image
+// param: kernelRadius radius of gaussian kernel
+// param: kernelWidth width of gaussian kernel
 void canny::computeGradients(float kernelRadius, int kernelWidth) {
   float *kernel;
 	float *diffKernel;
@@ -263,6 +269,9 @@ void canny::computeGradients(float kernelRadius, int kernelWidth) {
 	delete diffKernel;
 }
 
+// perform hysteresis
+// param: low the low threshold
+// param: high the high threshold
 void canny::performHysteresis(int low, int high) {
   int offset = 0;
   int x, y;
@@ -280,6 +289,11 @@ void canny::performHysteresis(int low, int high) {
   }
 }
 
+// follow
+// param: x1 the point's x position
+// param: y1 the point's y position
+// param: i1 the index
+// param: threshold the threshold
 void canny::follow(int x1, int y1, int i1, int threshold) {
   int x, y;
   int x0 = x1 == 0 ? x1 : x1 - 1;
@@ -299,6 +313,7 @@ void canny::follow(int x1, int y1, int i1, int threshold) {
   }
 }
 
+// normalize the contrast of the grey image
 void canny::normalizeContrast() {
   int histogram[256] = {0};
   int remap[256];
@@ -325,18 +340,33 @@ void canny::normalizeContrast() {
     data[i] = remap[data[i]];
 }
 
+// get hypotenuse
+// param: x one right-angle side
+// param: y another right-angle side
+// return: the value of the hypotenuse
 float canny::hypotenuse(float x, float y) { return (float) sqrt(x*x +y*y); }
 
+// get gaussian value
+// param: x the original
+// param: sigma sigma value
+// return: the value after gaussian filtering
 float canny::gaussian(float x, float sigma) { return (float) exp(-(x * x) / (2.0f * sigma * sigma)); }
 
+// catch and print the error
+// param: error error message
 void canny::catchErr(std::string error) {
   cout << error << endl;
   killbuffers();
   exit(1);
 }
 
-//canny::canny(CImg<unsigned char>& greyImg) { this(greyImg, 2.5f, 7.5f, 2.0f, 16, 0); }
-
+// constructor
+// param: greyImg the grey image
+// param: lowThreshold the low threshold
+// param: highthreshold the high threshold
+// param: gaussiankernelradius the radius of gaussion kernel
+// param: gaussiankernelwidth the width of gaussion kernel
+// param: contrastnormalised true if normalize the contrast of the grey image
 canny::canny(CImg<unsigned char>& greyImg, float lowThreshold, float highthreshold, float gaussiankernelradius, int gaussiankernelwidth, int contrastnormalised) {
   height = greyImg.height();
   width = greyImg.width();
@@ -360,12 +390,15 @@ canny::canny(CImg<unsigned char>& greyImg, float lowThreshold, float highthresho
     answer[i] = idata[i] > 0 ? 1 : 0;
 }
 
+// get the edge image
+// return: the edge image of the grey image
 CImg<unsigned char> canny::getEdgeImg() {
   CImg<unsigned char> rst(width, height, 1, 1);
   memcpy(rst._data, answer, width * height);
   return rst;
 }
 
+// destructor
 canny::~canny() { killbuffers(); }
 
 // ----------------------canny class-----------------------------
