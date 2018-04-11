@@ -50,10 +50,11 @@ int main() {
             break;
     }
 
+    /*
     cout << "Please enter lowThreshold, highthreshold, gaussiankernelradius, gaussiankernelwidth, contrastnormalised in order:" << endl;
     cin >> lowThreshold >> highthreshold >> gaussiankernelradius >> gaussiankernelwidth >> contrastnormalised;
     cin.get();
-
+    */
     // read the source image
     imageIO img(filename);
     // get the grey image
