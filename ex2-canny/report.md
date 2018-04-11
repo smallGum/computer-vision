@@ -107,7 +107,7 @@ The result images with `Gaussian kernel width = 9`:
 
 The result images with `Gaussian kernel width = 16`:
 
-![kernel width = 16](./images/report_images/kernel16.jpg)
+![kernel width = 16](./images/report_images/default.jpg)
 
 The result images with `Gaussian kernel width = 25`:
 
@@ -133,7 +133,7 @@ The result images with `Gaussian kernel radius = 3`:
 
 The result images with `Gaussian kernel radius = 4`:
 
-![kernel radius = 4](./images/report_images/gaussion1.jpg)
+![kernel radius = 4](./images/report_images/gaussion4.jpg)
 
 Comparing the results above, we can conclude that the smaller `Gaussian kernel radius` is, the more details and edges are detected while the more noise will also be detected. The larger `Gaussian kernel radius` is, the less details, edges and even little noise are detected. Since small kernel radius will cause more noise and large kernel radius will lead to important edges loss, we should choose the proper kernel radius for better detection (2 is the better kernel radius  for our test images).
 
