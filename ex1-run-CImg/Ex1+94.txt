@@ -1,7 +1,0 @@
-Self-assessment:
-
-Score for source code: 95
-Score for testing:     90
-Score for result:      95
-Score for report:      95
-Average score:         94
