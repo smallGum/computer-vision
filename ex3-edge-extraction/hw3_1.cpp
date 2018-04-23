@@ -8,8 +8,8 @@ void imageIO::toGrey() {
   unsigned int width = srcImg.width(), height = srcImg.height();
   greyImg = CImg<double>(width, height, 1, 1);
 
-  for (int i = 0; i < width; ++i) {
-      for (int j = 0; j < height; ++j) {
+  for (unsigned int i = 0; i < width; ++i) {
+      for (unsigned int j = 0; j < height; ++j) {
           double b = srcImg(i, j, 0, 0);
           double g = srcImg(i, j, 0, 1);
           double r = srcImg(i, j, 0, 2);
@@ -97,8 +97,8 @@ void A4EdgeExtract::findPeakPoints() {
       const int y0 = crossX(angle, polar, xmin);
       const int y1 = crossX(angle, polar, xmax);
 
-      if (x0 >= 0 && x0 <= xmax || x1 >= 0 && x1 <= xmax || y0 >= 0 && y0 <= ymax || y1 >= 0 && y1 <= ymax) {
-        for (int i = 0; i < peakPoints.size(); ++i) {
+      if ((x0 >= 0 && x0 <= xmax) || (x1 >= 0 && x1 <= xmax) || (y0 >= 0 && y0 <= ymax) || (y1 >= 0 && y1 <= ymax)) {
+        for (unsigned int i = 0; i < peakPoints.size(); ++i) {
           if (calDistance(peakPoints[i] -> x - angle, peakPoints[i] -> y - polar) < houghDiff) {
             flag = true;
             if (peakPoints[i] -> val < houghImg(angle, polar)) {
@@ -115,7 +115,6 @@ void A4EdgeExtract::findPeakPoints() {
 // calculate edge and hough image
 void A4EdgeExtract::calEdgeAndHoughImg() {
   CImg_3x3(I, double);
-  int cnt = 0;
   cimg_for3x3(grayImg, x, y, 0, 0, I, double) {
     const double gradX = Inc - Ipc;
     const double gradY = Icp - Icn;
@@ -134,7 +133,7 @@ void A4EdgeExtract::calEdgeAndHoughImg() {
 
 // calculate the lines' functions
 void A4EdgeExtract::calLinesFunctions() {
-  for (int i = 0; i < peakPoints.size(); ++i) {
+  for (unsigned int i = 0; i < peakPoints.size(); ++i) {
     double angle = (double)peakPoints[i] -> x * PI / 180.0;
     double m = -cos(angle) / sin(angle);
     double b = (double)peakPoints[i] -> y / sin(angle);
@@ -144,8 +143,8 @@ void A4EdgeExtract::calLinesFunctions() {
 
 // calculate lines' intersections
 void A4EdgeExtract::calLinesIntersections() {
-  for (int i = 0; i < lines.size(); ++i) {
-    for (int j = i + 1; j < lines.size(); ++j) {
+  for (unsigned int i = 0; i < lines.size(); ++i) {
+    for (unsigned int j = i + 1; j < lines.size(); ++j) {
       double m0 = lines[i]->m;
       double m1 = lines[j]->m;
       double b0 = lines[i]->b;
@@ -161,7 +160,7 @@ void A4EdgeExtract::calLinesIntersections() {
 
 // draw the edges of the image
 void A4EdgeExtract::drawEdges() {
-  for (int i = 0; i < lines.size(); ++i) {
+  for (unsigned int i = 0; i < lines.size(); ++i) {
     const int ymin = 0;
     const int ymax = resultImg.height() - 1;
     const int x0 = (double)(ymin - lines[i] -> b) / lines[i] -> m;
@@ -180,7 +179,7 @@ void A4EdgeExtract::drawEdges() {
 }
 // draw the edge points of the image
 void A4EdgeExtract::drawEdgePoints() {
-  for (int i = 0; i < intersections.size(); ++i) {
+  for (unsigned int i = 0; i < intersections.size(); ++i) {
     const double color[] = { 255, 255, 0 };
     resultImg.draw_circle(intersections[i] -> x, intersections[i] -> y, 50, color);
   }
@@ -201,7 +200,7 @@ CImg<double> A4EdgeExtract::getResultImg() { return resultImg; }
 // print the edge lines in the image
 void A4EdgeExtract::printLines() {
   cout << "edge lines\' function:" << endl;
-  for (int i = 0; i < lines.size(); ++i) {
+  for (unsigned int i = 0; i < lines.size(); ++i) {
     cout << "y = (" << lines[i] -> m << ")x + " << lines[i] -> b << endl;
   }
 }
@@ -209,7 +208,7 @@ void A4EdgeExtract::printLines() {
 // print the edge points in the image
 void A4EdgeExtract::printIntersections() {
   cout << "edge points: " << endl;
-  for (int i = 0; i < intersections.size(); ++i) {
+  for (unsigned int i = 0; i < intersections.size(); ++i) {
     cout << "(" << intersections[i] -> x << ", " << intersections[i] -> y << ")" << endl;
   }
 }

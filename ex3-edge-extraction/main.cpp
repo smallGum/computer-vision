@@ -1,7 +1,7 @@
 #include "hw3_1.h"
 
 int main() {
-  imageIO img("A4.bmp");
+  imageIO img("./images/A4_6.bmp");
   CImg<double> src = img.getSrcImg();
   CImg<double> gray = img.getGreyImg();
   A4EdgeExtract edgeEct(src, gray);
