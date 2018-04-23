@@ -1,5 +1,6 @@
 #include "hw3_1.h"
 #include <cmath>
+#include <iostream>
 
 // ----------------------imageIO class-----------------------------
 // transform the source image into grey image
@@ -37,11 +38,12 @@ CImg<double> imageIO::getGreyImg() { return greyImg; }
 
 // ----------------------A4EdgeExtract-----------------------------
 // constructor
-A4EdgeExtract::A4EdgeExtract(CImg<double>& gray, int blur, double grad, double diff, double threshold) {
+A4EdgeExtract::A4EdgeExtract(CImg<double>& src, CImg<double>& gray, int blur, double grad, double diff, double threshold) {
   blurDegree = blur;
   gradLimit = grad;
   houghDiff = diff;
   houghThreshold = threshold;
+  resultImg = CImg<double>(src);
   grayImg = CImg<double>(gray);
   edgeImg = CImg<double>(grayImg.width(), grayImg.height(), 1, 1, 0);
   int maxDist = calDistance(grayImg.width(), grayImg.height());
@@ -49,6 +51,9 @@ A4EdgeExtract::A4EdgeExtract(CImg<double>& gray, int blur, double grad, double d
 
   gaussianFilter();
   calEdgeAndHoughImg();
+  findPeakPoints();
+  //calLinesFunctions();
+  //calLinesIntersections();
 }
 
 // use gaussian filter to blur image
@@ -58,6 +63,54 @@ void A4EdgeExtract::gaussianFilter() { grayImg.blur(blurDegree); }
 // param: x the x value of the point
 // param: y the y value of the point
 double A4EdgeExtract::calDistance(double x, double y) { return sqrt(x * x + y * y); }
+
+// polar coordinate intersection with x value
+const int A4EdgeExtract::crossX(int theta, int dist, int x) {
+  double angle = (double)theta * PI / 180.0;
+  double m = -cos(angle) / sin(angle);
+  double b = (double)dist / sin(angle);
+  return m * x + b;
+}
+
+// polar coordinate intersection with y value
+const int A4EdgeExtract::crossY(int theta, int dist, int y) {
+  double angle = (double)theta * PI / 180.0;
+  double m = -cos(angle) / sin(angle);
+  double b = (double)dist / sin(angle);
+  return ((double)(y - b) / m);
+}
+
+// find peak points of hough image
+void A4EdgeExtract::findPeakPoints() {
+  cimg_forXY(houghImg, angle, polar) {
+    if (houghImg(angle, polar) > houghThreshold) {
+      bool flag = false;
+      const int ymin = 0;
+      const int ymax = resultImg.height() - 1;
+      const int x0 = crossY(angle, polar, ymin);
+      const int x1 = crossY(angle, polar, ymax);
+
+      const int xmin = 0;
+      const int xmax = resultImg.width() - 1;
+      const int y0 = crossX(angle, polar, xmin);
+      const int y1 = crossX(angle, polar, xmax);
+
+      resultImg.display();
+
+      if (x0 >= 0 && x0 <= xmax || x1 >= 0 && x1 <= xmax || y0 >= 0 && y0 <= ymax || y1 >= 0 && y1 <= ymax) {
+        for (int i = 0; i < peakPoints.size(); ++i) {
+          if (calDistance(peakPoints[i] -> x - angle, peakPoints[i] -> y - polar) < houghDiff) {
+            flag = true;
+            if (peakPoints[i] -> val < houghImg(angle, polar)) {
+              peakPoints[i] = new point(angle, polar, houghImg(angle, polar));
+            }
+          }
+        }
+        if (!flag) { peakPoints.push_back(new point(angle, polar, houghImg(angle, polar))); }
+      }
+    }
+  }
+}
 
 // calculate edge and hough image
 void A4EdgeExtract::calEdgeAndHoughImg() {
@@ -79,6 +132,33 @@ void A4EdgeExtract::calEdgeAndHoughImg() {
   }
 }
 
+// calculate the lines' functions
+void A4EdgeExtract::calLinesFunctions() {
+  for (int i = 0; i < peakPoints.size(); ++i) {
+    double angle = (double)peakPoints[i] -> x * PI / 180.0;
+    double m = -cos(angle) / sin(angle);
+    double b = (double)peakPoints[i] -> y / sin(angle);
+    lines.push_back(new line(m, b));
+  }
+}
+
+// calculate lines' intersections
+void A4EdgeExtract::calLinesIntersections() {
+  for (int i = 0; i < lines.size(); ++i) {
+    for (int j = i + 1; j < lines.size(); ++j) {
+      double m0 = lines[i]->m;
+      double m1 = lines[j]->m;
+      double b0 = lines[i]->b;
+      double b1 = lines[j]->b;
+      double x = (b1 - b0) / (m0 - m1);
+      double y = (m0 * b1 - m1 * b0) / (m0 - m1);
+      if (x >= 0 && x < resultImg.width() && y >= 0 && y < resultImg.height()) {
+        intersections.push_back(new point(x, y, 0));
+      }
+    }
+  }
+}
+
 // get the edge image
 CImg<double> A4EdgeExtract::getEdgeImg() { return edgeImg; }
 
@@ -87,3 +167,19 @@ CImg<double> A4EdgeExtract::getHoughImg() { return houghImg; }
 
 // get the blurred image
 CImg<double> A4EdgeExtract::getBlurImg() { return grayImg; }
+
+// print the edge lines in the image
+void A4EdgeExtract::printLines() {
+  cout << "edge lines\' function:" << endl;
+  for (int i = 0; i < lines.size(); ++i) {
+    cout << "y = (" << lines[i] -> m << ")x + " << lines[i] -> b << endl;
+  }
+}
+
+// print the edge points in the image
+void A4EdgeExtract::printIntersections() {
+  cout << "edge points: " << endl;
+  for (int i = 0; i < intersections.size(); ++i) {
+    cout << "(" << intersections[i] -> x << ", " << intersections[i] -> y << ")" << endl;
+  }
+}
