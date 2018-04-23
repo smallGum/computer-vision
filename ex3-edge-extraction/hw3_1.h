@@ -13,8 +13,8 @@ using namespace cimg_library;
 
 // point structure represents one pixel in the image
 struct point {
-  int x, y, val;
-  point(int xVal, int yVal, int value): x(xVal), y(yVal), val(value) {}
+  double x, y, val;
+  point(double xVal, double yVal, double value): x(xVal), y(yVal), val(value) {}
 };
 
 // line structure represents a line in the image
@@ -75,16 +75,23 @@ private:
   void calLinesFunctions();
   // calculate edge lines' intersections
   void calLinesIntersections();
+  // draw the edges of the image
+  void drawEdges();
+  // draw the edge points of the image
+  void drawEdgePoints();
+
 
 public:
   // constructor
-  A4EdgeExtract(CImg<double>& src, CImg<double>& gray, int blur = 2, double grad = 20, double diff = 200, double threshold = 650);
+  A4EdgeExtract(CImg<double>& src, CImg<double>& gray, int blur = 3, double grad = 20, double diff = 200, double threshold = 650);
   // get the edge image
   CImg<double> getEdgeImg();
   // get the hough image
   CImg<double> getHoughImg();
   // get the blur image
   CImg<double> getBlurImg();
+  // get the result image
+  CImg<double> getResultImg();
   // print the edge lines in the image
   void printLines();
   // print the edge points in the image

@@ -4,14 +4,16 @@ int main() {
   imageIO img("A4.bmp");
   CImg<double> src = img.getSrcImg();
   CImg<double> gray = img.getGreyImg();
-  A4EdgeExtract edgeEct(src, gray, 3, 25);
-  /*CImg<double> edge = edgeEct.getEdgeImg();
+  A4EdgeExtract edgeEct(src, gray);
+  CImg<double> edge = edgeEct.getEdgeImg();
   CImg<double> hough = edgeEct.getHoughImg();
+  CImg<double> result = edgeEct.getResultImg();
 
-  edge.display();
-  hough.display();
+  //edge.display();
+  //hough.display();
   edgeEct.printLines();
-  edgeEct.printIntersections();*/
+  edgeEct.printIntersections();
+  result.display();
 
   return 0;
 }

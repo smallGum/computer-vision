@@ -52,8 +52,10 @@ A4EdgeExtract::A4EdgeExtract(CImg<double>& src, CImg<double>& gray, int blur, do
   gaussianFilter();
   calEdgeAndHoughImg();
   findPeakPoints();
-  //calLinesFunctions();
-  //calLinesIntersections();
+  calLinesFunctions();
+  calLinesIntersections();
+  drawEdges();
+  drawEdgePoints();
 }
 
 // use gaussian filter to blur image
@@ -94,8 +96,6 @@ void A4EdgeExtract::findPeakPoints() {
       const int xmax = resultImg.width() - 1;
       const int y0 = crossX(angle, polar, xmin);
       const int y1 = crossX(angle, polar, xmax);
-
-      resultImg.display();
 
       if (x0 >= 0 && x0 <= xmax || x1 >= 0 && x1 <= xmax || y0 >= 0 && y0 <= ymax || y1 >= 0 && y1 <= ymax) {
         for (int i = 0; i < peakPoints.size(); ++i) {
@@ -159,6 +159,33 @@ void A4EdgeExtract::calLinesIntersections() {
   }
 }
 
+// draw the edges of the image
+void A4EdgeExtract::drawEdges() {
+  for (int i = 0; i < lines.size(); ++i) {
+    const int ymin = 0;
+    const int ymax = resultImg.height() - 1;
+    const int x0 = (double)(ymin - lines[i] -> b) / lines[i] -> m;
+    const int x1 = (double)(ymax - lines[i] -> b) / lines[i] -> m;
+
+    const int xmin = 0;
+    const int xmax = resultImg.width() - 1;
+    const int y0 = xmin * lines[i] -> m + lines[i] -> b;
+    const int y1 = xmax * lines[i] -> m + lines[i] -> b;
+
+    const double color[] = { 255, 255, 0 };
+
+    if (abs(lines[i] -> m) > 1) { resultImg.draw_line(x0, ymin, x1, ymax, color); }
+    else { resultImg.draw_line(xmin, y0, xmax, y1, color); }
+  }
+}
+// draw the edge points of the image
+void A4EdgeExtract::drawEdgePoints() {
+  for (int i = 0; i < intersections.size(); ++i) {
+    const double color[] = { 255, 255, 0 };
+    resultImg.draw_circle(intersections[i] -> x, intersections[i] -> y, 50, color);
+  }
+}
+
 // get the edge image
 CImg<double> A4EdgeExtract::getEdgeImg() { return edgeImg; }
 
@@ -167,6 +194,9 @@ CImg<double> A4EdgeExtract::getHoughImg() { return houghImg; }
 
 // get the blurred image
 CImg<double> A4EdgeExtract::getBlurImg() { return grayImg; }
+
+// get the result image
+CImg<double> A4EdgeExtract::getResultImg() { return resultImg; }
 
 // print the edge lines in the image
 void A4EdgeExtract::printLines() {
