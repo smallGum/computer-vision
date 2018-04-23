@@ -3,10 +3,19 @@
 
 #include <string>
 #include "CImg.h"
+#include <vector>
+
+using namespace std;
 
 using namespace cimg_library;
 
 #define PI 3.14159265358979323846
+
+// point structure represents one pixel in the image
+struct point {
+  int x, y, val;
+  point(int xVal, int yVal, int value): x(xVal), y(yVal), val(value) {}
+};
 
 // images IO class
 // read the source image and output its grey image
@@ -31,8 +40,11 @@ public:
 // extract the edge of the gray image of an A4 paper
 class A4EdgeExtract {
 private:
-  int blurDegree;        // degree of blur
-  int gradLimit;         // threshold of gradiant
+  int blurDegree;             // degree of blur
+  double gradLimit;           // threshold of gradiant
+  double houghDiff;           // difference between adjacnet points in the hough image
+  double houghThreshold;      // threshold for hough peak value
+  vector<point*> peakPoints;  // store the peak pixel points in the hough image
 
   CImg<double> grayImg;  // gray image to extract edges
   CImg<double> edgeImg;  // edge image of the gray image
@@ -47,11 +59,13 @@ private:
 
 public:
   // constructor
-  A4EdgeExtract(CImg<double> gray, int blur, int grad);
+  A4EdgeExtract(CImg<double>& gray, int blur = 2, double grad = 20, double diff = 200, double threshold = 650);
   // get the edge image
   CImg<double> getEdgeImg();
   // get the hough image
   CImg<double> getHoughImg();
+  // get the blur image
+  CImg<double> getBlurImg();
 };
 
 #endif

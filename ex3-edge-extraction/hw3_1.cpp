@@ -37,15 +37,18 @@ CImg<double> imageIO::getGreyImg() { return greyImg; }
 
 // ----------------------A4EdgeExtract-----------------------------
 // constructor
-A4EdgeExtract(CImg<double> gray, int blur, int grad) {
+A4EdgeExtract::A4EdgeExtract(CImg<double>& gray, int blur, double grad, double diff, double threshold) {
   blurDegree = blur;
   gradLimit = grad;
+  houghDiff = diff;
+  houghThreshold = threshold;
   grayImg = CImg<double>(gray);
   edgeImg = CImg<double>(grayImg.width(), grayImg.height(), 1, 1, 0);
   int maxDist = calDistance(grayImg.width(), grayImg.height());
   houghImg = CImg<double>(360, maxDist, 1, 1, 0);
 
-  grayImg.blur(blurDegree);
+  gaussianFilter();
+  calEdgeAndHoughImg();
 }
 
 // use gaussian filter to blur image
@@ -59,6 +62,7 @@ double A4EdgeExtract::calDistance(double x, double y) { return sqrt(x * x + y * 
 // calculate edge and hough image
 void A4EdgeExtract::calEdgeAndHoughImg() {
   CImg_3x3(I, double);
+  int cnt = 0;
   cimg_for3x3(grayImg, x, y, 0, 0, I, double) {
     const double gradX = Inc - Ipc;
     const double gradY = Icp - Icn;
@@ -69,7 +73,7 @@ void A4EdgeExtract::calEdgeAndHoughImg() {
       cimg_forX(houghImg, angle) {
         double rangle = (double)angle * PI / 180.0;
         int polar = (int)(x * cos(rangle) + y * sin(rangle));
-        if (polar >= 0 && polar < houghImg.height()) { hough(angle, polar) += 1; }
+        if (polar >= 0 && polar < houghImg.height()) { houghImg(angle, polar) += 1; }
       }
     }
   }
@@ -79,4 +83,7 @@ void A4EdgeExtract::calEdgeAndHoughImg() {
 CImg<double> A4EdgeExtract::getEdgeImg() { return edgeImg; }
 
 // get the hough image
-CImg<double> getHoughImg() { return houghImg; }
+CImg<double> A4EdgeExtract::getHoughImg() { return houghImg; }
+
+// get the blurred image
+CImg<double> A4EdgeExtract::getBlurImg() { return grayImg; }
