@@ -1,3 +1,6 @@
+#ifndef _HW3_2_
+#define _HW3_2_
+
 #include "canny.h"
 #include <vector>
 #include <cmath>
@@ -7,11 +10,13 @@
 using namespace cimg_library;
 using namespace std;
 
+// point structure represents a position in the image
 struct point {
   double x, y;
   point(double _x, double _y): x(_x), y(_y) {}
 };
 
+// pixel structure represents a specify pixel in the image
 struct pixel {
   point pt;
   double val;
@@ -19,6 +24,7 @@ struct pixel {
   bool operator<(const pixel& d) { return val < d.val; }
 };
 
+// num_idx structure represents the number corresponding to its index in an array
 struct num_idx {
   int idx;
   double num;
@@ -28,53 +34,67 @@ struct num_idx {
 
 class circleExtract {
 private:
-	CImg<unsigned char> grayImg;
-	CImg<unsigned char> edgeImg;
-	CImg<double> xGradImg;
-	CImg<double> yGradImg;
-  vector<pixel> circles;
+	CImg<unsigned char> grayImg;  // the gray image
+	CImg<unsigned char> edgeImg;  // the edge image
+	CImg<double> xGradImg;        // the horizontal gradient image
+	CImg<double> yGradImg;        // the vertical gradient image
+  vector<pixel> circles;        // the circles detected, including its x, y positions and the value of radius
 
-	double minDist;
-	double cannyHighThreshold;
-	double houghThreshold;
-	int minRadius;
-	int maxRadius;
+	double minDist;               // minimal distance that distinguishes two different centers
+	double houghThreshold;        // the threshold of a point considered to be a center
+	int minRadius;                // minimal radius of a circle
+	int maxRadius;                // max radius of a circle
 
+  // judge whether a double number == 0
 	bool isZero(double num) { return fabs(num) < 10e-6; }
+  // round function for double
 	int mround(double num) { return num < 0.0 ? (int)(num - 0.5) : (int)(num + 0.5); }
+  // find the circles of the image
+  void findCircles();
 
 public:
-	circleExtract(CImg<unsigned char>& _image, double min_dist, double cThreshold, double hThreshold, int _minRadius, int _maxRadius);
-	void findCircles();
+  // constructor
+	circleExtract(CImg<unsigned char>& _image, double min_dist, int _minRadius, int _maxRadius);
+  // get the circles of the image
   vector<pixel> getCircles() { return circles; }
+  // get the edge image
+  CImg<unsigned char> getEdge() { return edgeImg; }
 };
 
-circleExtract::circleExtract(CImg<unsigned char>& _image, double min_dist, double cThreshold, double hThreshold, int _minRadius, int _maxRadius) {
+// constructor
+circleExtract::circleExtract(CImg<unsigned char>& _image, double min_dist, int _minRadius, int _maxRadius) {
 	grayImg = CImg<unsigned char>(_image);
-  grayImg.display();
-	canny edgeCatch(grayImg);
+  float lowThreshold;
+  float highThreshold;
+  float gaussianRadius;
+
+  // read relative parameters from the user
+  cout << "Enter the houghThreshold, lowThreshold, highThreshold, gaussianRadius:" << endl;
+  cin >> houghThreshold >> lowThreshold >> highThreshold >> gaussianRadius;
+
+  // canny edge detection
+	canny edgeCatch(grayImg, lowThreshold, highThreshold, gaussianRadius);
 	edgeImg = edgeCatch.getEdgeImg();
-  edgeImg.display();
 	xGradImg = edgeCatch.getXGradImg();
 	yGradImg = edgeCatch.getYGradImg();
-  xGradImg.display();
-  yGradImg.display();
 
+  // set distance parameters
 	minDist = min_dist;
-	cannyHighThreshold = cThreshold;
-	houghThreshold = hThreshold;
-
 	minRadius = max(_minRadius, 0);
 	if( _maxRadius <= 0 )
     maxRadius = max(grayImg.width(), grayImg.height());
   else if( _maxRadius <= _minRadius )
     maxRadius = _minRadius + 2;
+  else maxRadius = _maxRadius;
 
+  // find the circles of the image
   findCircles();
 }
 
+// find the circles of the image and store it in vector<pixel> circles
 void circleExtract::findCircles() {
 	int min_radius = minRadius, max_radius = maxRadius;
+  cout << min_radius << ", " << maxRadius << endl;
 	const int SHIFT = 10, ONE = 1 << SHIFT;
 	int width = edgeImg.width();
 	int height = edgeImg.height();
@@ -87,6 +107,7 @@ void circleExtract::findCircles() {
 	double min_radius2 = (double)min_radius * min_radius;
   double max_radius2 = (double)max_radius * max_radius;
 
+  // find all the possible points on the edge of circles
 	cimg_forXY(edgeImg, x, y) {
 		double vx = xGradImg(x, y), vy = yGradImg(x, y);
 		if (edgeImg(x, y) && (!isZero(vx) || !isZero(vy))) {
@@ -118,32 +139,30 @@ void circleExtract::findCircles() {
 			nz.push_back(pt);
 		}
 	}
-
-  cout << nz.size() << endl;
-
+  // if no points on the circle, there is no circle in the image
 	if (!nz.size()) { return ; }
 
+  // find all the possible centers in the image
 	for( int x = 1; x < width - 1; x++ )
   {
     for( int y = 1; y < height - 1; y++ )
     {
-      //如果当前的值大于阈值，并在4邻域内它是最大值，则该点被认为是圆心
       if( accum(x, y) > houghThreshold &&
         accum(x, y) > accum(x - 1, y) && accum(x, y) > accum(x + 1, y) &&
         accum(x, y) > accum(x, y - 1) && accum(x, y) > accum(x, y + 1) ) {
-        //把当前点的地址压入圆心序列centers中
+
         pixel px(x, y, accum(x, y));
         centers.push_back(px);
       }
      }
   }
-
-  cout << centers.size() << endl;
-
+  // if no centers, there is no circle in the image
   if (!centers.size()) { return ; }
 
+  // show the accumulating image
   accum.display();
 
+  // calculate the possible radius of all the circles found
   sort(centers.begin(), centers.end());
   double min_dist = minDist * minDist;
   for (int i = centers.size() - 1; i >= 0; --i) {
@@ -196,7 +215,6 @@ void circleExtract::findCircles() {
       circles.push_back(px);
     }
   }
-
-  //return centers;
-  //cout << centers.size() << endl;
 }
+
+#endif

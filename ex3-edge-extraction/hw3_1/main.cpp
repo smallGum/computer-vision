@@ -35,21 +35,25 @@ int main() {
             filename[10] = '1';
             blur = 5;
             grad = 20;
-            threshold = 50;
-            diff = 500;
+            threshold = 500;
+            diff = 50;
             break;
         case 2:
             filename[10] = '2';
-            grad = 25;
-            blur = 3;
-            threshold = 660;
+            grad = 20;
+            blur = 1;
+            threshold = 800;
+            diff = 400;
             break;
         case 3:
             filename[10] = '3';
             break;
         case 4:
             filename[10] = '4';
-            threshold = 500;
+            blur = 1;
+            grad = 20;
+            threshold = 400;
+            diff = 400;
             break;
         case 5:
             filename[10] = '5';
@@ -67,11 +71,11 @@ int main() {
     CImg<double> gray = img.getGreyImg();
     A4EdgeExtract edgeEct(src, gray, blur, grad, diff, threshold);
     CImg<double> edge = edgeEct.getEdgeImg();
-    //CImg<double> hough = edgeEct.getHoughImg();
+    CImg<double> hough = edgeEct.getHoughImg();
     CImg<double> result = edgeEct.getResultImg();
 
     edge.display();
-    //hough.display();
+    hough.display();
     edgeEct.printLines();
     edgeEct.printIntersections();
     result.display();
