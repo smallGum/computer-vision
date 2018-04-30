@@ -1,5 +1,5 @@
+#include "prewitt.h"
 #include "hw3_1.h"
-#include <iostream>
 
 int main() {
   // get the opertaion from user
@@ -23,10 +23,11 @@ int main() {
     cin >> image;
     cin.get();
 
-    int blur = 3;
-    double grad = 20;
-    double diff = 200;
-    double threshold = 650;
+    // set the parameters
+    int blur;
+    double grad;
+    double diff;
+    double threshold;
 
     switch(image) {
         case 0:
@@ -35,31 +36,43 @@ int main() {
             filename[10] = '1';
             blur = 5;
             grad = 20;
-            threshold = 500;
             diff = 50;
+            threshold = 500;
             break;
         case 2:
             filename[10] = '2';
-            grad = 20;
             blur = 1;
-            threshold = 800;
+            grad = 20;
             diff = 400;
+            threshold = 800;
             break;
         case 3:
             filename[10] = '3';
+            blur = 3;
+            grad = 20;
+            diff = 200;
+            threshold = 650;
             break;
         case 4:
             filename[10] = '4';
             blur = 1;
             grad = 20;
-            threshold = 400;
             diff = 400;
+            threshold = 400;
             break;
         case 5:
             filename[10] = '5';
+            blur = 3;
+            grad = 20;
+            diff = 200;
+            threshold = 650;
             break;
         case 6:
             filename[10] = '6';
+            blur = 3;
+            grad = 20;
+            diff = 200;
+            threshold = 650;
             break;
         default:
             cout << "no such image! Please enter again!" << endl;
@@ -68,17 +81,18 @@ int main() {
 
     imageIO img(filename);
     CImg<double> src = img.getSrcImg();
-    CImg<double> gray = img.getGreyImg();
-    A4EdgeExtract edgeEct(src, gray, blur, grad, diff, threshold);
-    CImg<double> edge = edgeEct.getEdgeImg();
-    CImg<double> hough = edgeEct.getHoughImg();
-    CImg<double> result = edgeEct.getResultImg();
+    CImg<double> grey = img.getGreyImg();
+    prewitt edge(grey, blur, grad);
+    CImg<double> edgeImg = edge.getEdgeImg();
+    A4EdgeExtract edgeEct(src, edgeImg, diff, threshold);
+    CImg<double> houghImg = edgeEct.getHoughImg();
+    CImg<double> resultImg = edgeEct.getResultImg();
 
-    edge.display();
-    hough.display();
+    edgeImg.display();
+    houghImg.display();
     edgeEct.printLines();
     edgeEct.printIntersections();
-    result.display();
+    resultImg.display();
   }
 
   return 0;
