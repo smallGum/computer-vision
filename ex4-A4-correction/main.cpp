@@ -79,17 +79,27 @@ int main() {
             break;
     }
 
+    // read the source image
     imageIO img(filename);
+    // get the source image and gray image
     CImg<double> src = img.getSrcImg();
     CImg<double> grey = img.getGreyImg();
+    // prewitt detector
     prewitt edge(grey, blur, grad);
+    // get edge image
     CImg<double> edgeImg = edge.getEdgeImg();
+    // extract the edge of the A4 paper
     A4EdgeExtract edgeEct(src, edgeImg, diff, threshold);
+    // get the result image with four vertices of A4 paper marked
     CImg<double> resultImg = edgeEct.getResultImg();
+    // get the four vertices position
     vector<point*> v = edgeEct.getIntersections();
+    // correct the A4 paper of original image
     A4Correct cr(src, v);
+    // get the corrected image
     CImg<double> targetImg = cr.getTargetImg();
 
+    // display the result image and the corrected A4 paper
     resultImg.display();
     targetImg.display();
   }
