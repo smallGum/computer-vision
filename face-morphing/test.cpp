@@ -1,7 +1,5 @@
-#include <fstream>
 #include <iostream>
-#include <vector>
-#include "CImg.h"
+#include "face_morphing.h"
 
 #define NUM_FACE_POINTS 83
 
@@ -9,19 +7,16 @@ using namespace std;
 using namespace cimg_library;
 
 int main() {
-    CImg<double> src("./testData/data1/girl.bmp");
-    ifstream in("./testData/data1/girl_face_points.txt");
-    int X;
-    int Y;
-    const double color[] = { 255, 255, 0 };
+  double rate;
+  cout << "enter rate: " << endl;
+  cin >> rate;
+  string man("./testData/data1/man.bmp");
+  string girl("./testData/data1/girl.bmp");
+  string manFile("./testData/data1/man_face_points.txt");
+  string girlFile("./testData/data1/girl_face_points.txt");
 
-    for (int i = 0; i < NUM_FACE_POINTS; ++i) {
-        in >> X;
-        in >> Y;
-        src.draw_circle(X, Y, 1, color);
-    }
+  controlInfo ci(man, girl, manFile, girlFile, NUM_FACE_POINTS);
+  morph mh(ci, rate);
 
-    in.close();
-    src.display();
-    return 0;
+  return 0;
 }
