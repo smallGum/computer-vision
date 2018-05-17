@@ -24,11 +24,13 @@ struct position {
   double dot(const position& another) const { return x * another.x + y * another.y; }
 };
 
+// triangle structure represents a triangle and its circumcircle in the image
 struct triangle {
-  position a, b, c;
-  position center;
-  double radius;
+  position a, b, c;  // three vertices of the triangle
+  position center;   // center of the circumcircle
+  double radius;     // radius of the circumcircle
 
+  // initialize the three vertices of the triangle and the radius and center of its circumcircle
   triangle(position _a, position _b, position _c): a(_a), b(_b), c(_c), center(position(0, 0, 0)) {
     double x1  =  a.x;
     double x2  =  b.x;
@@ -55,12 +57,14 @@ struct triangle {
     center.y = y;
   }
 
+  // check if the position p is in the circumcircle
   bool inCircle(position* p) {
     double x2 = (p -> x - center.x) * (p -> x - center.x);
     double y2 = (p -> y - center.y) * (p -> y - center.y);
     return sqrt(x2 + y2) <= radius;
   }
 
+  // check if the position p is in the triangle
   bool inTriangle(position* p) {
     position v0 = c - a;
     position v1 = b - a;
@@ -82,29 +86,38 @@ struct triangle {
   }
 };
 
+// squareMatrix3 represents a 3 * 3 matrix
 struct squareMatrix3 {
   double a11, a21, a31;
   double a12, a22, a32;
   double a13, a23, a33;
 };
 
+// controlInfo get the necessary information of the image
 class controlInfo {
 private:
-  CImg<double> srcImgA;
-  CImg<double> srcImgB;
-  vector<position*> AcontrolPoints;
-  vector<position*> BcontrolPoints;
-  vector<triangle*> AcontrolTriangles;
-  vector<triangle*> BcontrolTriangles;
+  CImg<double> srcImgA;                 // the first source image
+  CImg<double> srcImgB;                 // the seconde source image
+  vector<position*> AcontrolPoints;     // the control points of the first source image
+  vector<position*> BcontrolPoints;     // the control points of the second source image
+  vector<triangle*> AcontrolTriangles;  // the control triangles of the first source image
+  vector<triangle*> BcontrolTriangles;  // the control triangles of the second source image
 
+  // get the control triangles of the two source images
   void getTriangles();
 
 public:
+  // constructor
   controlInfo(string imgA, string imgB, string imgAFile, string imgBFile, int controlPointsNum);
+  // draw the triangle on the two images
   void drawTriangle(CImg<double>& imgA, CImg<double>& imgB);
+  // get the first source image
   CImg<double>& getSrcImgA() { return srcImgA; }
+  // get the second source image
   CImg<double>& getSrcImgB() { return srcImgB; }
+  // get the control triangles of the first image
   vector<triangle*>& getAControlTriangles() { return AcontrolTriangles; }
+  // get the control triangles of the second image
   vector<triangle*>& getBControlTriangles() { return BcontrolTriangles; }
 };
 
@@ -138,7 +151,7 @@ controlInfo::controlInfo(string imgA, string imgB, string imgAFile, string imgBF
   inB.close();
 
   getTriangles();
-  drawTriangle(srcImgA, srcImgB);
+  //drawTriangle(srcImgA, srcImgB);
 }
 
 void controlInfo::getTriangles() {
@@ -196,19 +209,24 @@ void controlInfo::drawTriangle(CImg<double>& imgA, CImg<double>& imgB) {
 
 class morph {
 private:
-  CImg<double> srcImgA;
-  CImg<double> srcImgB;
-  CImg<double> targetImgA;
-  CImg<double> targetImgB;
-  CImg<double> targetImg;
-  double rate;
+  CImg<double> srcImgA;     // the first source image
+  CImg<double> srcImgB;     // the second source image
+  CImg<double> targetImgA;  // the target image after processing the first source image
+  CImg<double> targetImgB;  // the target image after processing the second source image
+  CImg<double> targetImg;   // the final target image
+  double rate;              // the frame rate
 
+  // calculate the middle triangle of triangles A and B
   triangle* calMiddleTriangle(triangle* A, triangle* B);
+  // calculate the transformed coefficient of triangles A and B
   squareMatrix3 calTransCoeff(triangle* A, triangle* B);
+  // get the middle triangles
   void getMiddleTriangles(vector<triangle*>& ATris, vector<triangle*>& BTris, vector<triangle*>& MTris);
+  // transformed the first and the second source image to final target image
   void trans(vector<triangle*>& ATris, vector<triangle*>& BTris, vector<triangle*>& MTris);
 
 public:
+  // constructor
   morph(controlInfo& ci, double _rate);
 };
 
