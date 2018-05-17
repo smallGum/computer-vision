@@ -48,25 +48,25 @@ And the animation is:
 
 The 11 middle images of pair 2 is as follows:
 
-![middle images](./result/data1/data21.jpg)
-![middle images](./result/data1/data22.jpg)
-![middle images](./result/data1/data23.jpg)
+![middle images](./result/data2/data21.jpg)
+![middle images](./result/data2/data22.jpg)
+![middle images](./result/data2/data23.jpg)
 
 And the animation is:
 
-![middle images](./result/data1/man-to-woman.gif)
+![middle images](./result/data2/man-to-woman.gif)
 
 ### Pair 3
 
 The 11 middle images of pair 3 is as follows:
 
-![middle images](./result/data1/data31.jpg)
-![middle images](./result/data1/data32.jpg)
-![middle images](./result/data1/data33.jpg)
+![middle images](./result/data3/data31.jpg)
+![middle images](./result/data3/data32.jpg)
+![middle images](./result/data3/data33.jpg)
 
 And the animation is:
 
-![middle images](./result/data1/woman-to-chun.gif)
+![middle images](./result/data3/woman-to-chun.gif)
 
 ## Conclusion
 
