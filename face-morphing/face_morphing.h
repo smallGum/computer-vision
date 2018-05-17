@@ -58,17 +58,17 @@ struct triangle {
   }
 
   // check if the position p is in the circumcircle
-  bool inCircle(position* p) {
-    double x2 = (p -> x - center.x) * (p -> x - center.x);
-    double y2 = (p -> y - center.y) * (p -> y - center.y);
+  bool inCircle(position p) {
+    double x2 = (p.x - center.x) * (p.x - center.x);
+    double y2 = (p.y - center.y) * (p.y - center.y);
     return sqrt(x2 + y2) <= radius;
   }
 
   // check if the position p is in the triangle
-  bool inTriangle(position* p) {
+  bool inTriangle(position p) {
     position v0 = c - a;
     position v1 = b - a;
-    position v2 = *p - a;
+    position v2 = p - a;
 
     double dot00 = v0.dot(v0);
     double dot01 = v0.dot(v1);
@@ -109,6 +109,11 @@ private:
 public:
   // constructor
   controlInfo(string imgA, string imgB, string imgAFile, string imgBFile, int controlPointsNum);
+  // destructor
+  ~controlInfo() {
+    for (int i = 0; i < AcontrolPoints.size(); ++i) { delete AcontrolPoints[i]; delete BcontrolPoints[i]; }
+    for (int i = 0; i < AcontrolTriangles.size(); ++i) { delete AcontrolTriangles[i]; delete BcontrolTriangles[i]; }
+  }
   // draw the triangle on the two images
   void drawTriangle(CImg<double>& imgA, CImg<double>& imgB);
   // get the first source image
@@ -169,7 +174,7 @@ void controlInfo::getTriangles() {
         for (int m = 0; m < numPoints; ++m) {
           position* p = AcontrolPoints[m];
           if (*p == *a || *p == *b || *p == *c) { continue; }
-          if (tri -> inCircle(p)) { find = false; break; }
+          if (tri -> inCircle(*p)) { find = false; break; }
         }
         if (find) { AcontrolTriangles.push_back(tri); }
       }
@@ -228,6 +233,8 @@ private:
 public:
   // constructor
   morph(controlInfo& ci, double _rate);
+  // get the target images
+  CImg<double>& getTargetImg() { return targetImg; }
 };
 
 morph::morph(controlInfo& ci, double _rate) {
@@ -243,9 +250,7 @@ morph::morph(controlInfo& ci, double _rate) {
   vector<triangle*> MTris;
   getMiddleTriangles(ci.getAControlTriangles(), ci.getBControlTriangles(), MTris);
   trans(ci.getAControlTriangles(), ci.getBControlTriangles(), MTris);
-
-
-  targetImg.display();
+  for (int i = 0; i < MTris.size(); ++i) { delete MTris[i]; }
 }
 
 triangle* morph::calMiddleTriangle(triangle* A, triangle* B) {
@@ -315,7 +320,7 @@ void morph::trans(vector<triangle*>& ATris, vector<triangle*>& BTris, vector<tri
   cimg_forXY(targetImgA, x, y) {
     bool isFind = false;
     for (int i = 0; i < BTris.size(); ++i) {
-      if (BTris[i] -> inTriangle(new position(x, y, 0))) {
+      if (BTris[i] -> inTriangle(position(x, y, 0))) {
         double tx = x * BtoA[i] -> a11 + y * BtoA[i] -> a12 + BtoA[i] -> a13;
         double ty = x * BtoA[i] -> a21 + y * BtoA[i] -> a22 + BtoA[i] -> a23;
         if (tx >= 0 && tx < width && ty >= 0 && ty < height) {
@@ -329,14 +334,13 @@ void morph::trans(vector<triangle*>& ATris, vector<triangle*>& BTris, vector<tri
       cimg_forC(srcImgA, c) { targetImgA(x, y, 0, c) = srcImgA.linear_atXY(x, y, 0, c); }
     }
   }
-  targetImgA.display();
 
   width = targetImgB.width();
   height = targetImgB.height();
   cimg_forXY(targetImgB, x, y) {
     bool isFind = false;
     for (int i = 0; i < ATris.size(); ++i) {
-      if (ATris[i] -> inTriangle(new position(x, y, 0))) {
+      if (ATris[i] -> inTriangle(position(x, y, 0))) {
         double tx = x * AtoB[i] -> a11 + y * AtoB[i] -> a12 + AtoB[i] -> a13;
         double ty = x * AtoB[i] -> a21 + y * AtoB[i] -> a22 + AtoB[i] -> a23;
         if (tx >= 0 && tx < width && ty >= 0 && ty < height) {
@@ -350,10 +354,14 @@ void morph::trans(vector<triangle*>& ATris, vector<triangle*>& BTris, vector<tri
       cimg_forC(srcImgB, c) { targetImgB(x, y, 0, c) = srcImgB.linear_atXY(x, y, 0, c); }
     }
   }
-  targetImgB.display();
 
   cimg_forXYZC(targetImg, x, y, z, c) {
     targetImg(x, y, z, c) = rate * targetImgB(x, y, z, c) + (1 - rate) * targetImgA(x, y, z, c);
+  }
+
+  for (int i = 0; i < AtoB.size(); ++i) {
+    delete AtoB[i];
+    delete BtoA[i];
   }
 }
 
