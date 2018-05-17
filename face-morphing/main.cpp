@@ -14,8 +14,8 @@ int main() {
     cout << endl;
     cout << "      0. Exit                      " << endl;
     cout << "      1. man-to-girl morphing      " << endl;
-    cout << "      2. dataset 2                 " << endl;
-    cout << "      3. dataset 3                 " << endl;
+    cout << "      2. man-to-woman morphing     " << endl;
+    cout << "      3. woman-to-chun morphing    " << endl;
     cout << endl;
     cout << "Please enter your choice (0-3): ";
 
