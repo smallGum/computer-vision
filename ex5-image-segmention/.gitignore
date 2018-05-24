@@ -1,0 +1,11 @@
+# ignore Mac OS file
+.DS_Store
+
+# ignore vscode file
+.vscode
+
+# ignore excutable file
+main
+
+# ignore result images
+segmented_images/
