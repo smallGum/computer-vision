@@ -104,8 +104,84 @@ private:
 
 public:
   stitch(CImg<float>& imgA, CImg<float>& imgB, int sx, int sy);
-  void saveStitchedImg(char* stitchedImgAddr);
+  //void saveStitchedImg(char* stitchedImgAddr);
 };
+
+stitch::stitch(CImg<float>& imgA, CImg<float>& imgB, int sx, int sy) {
+	srcImgA = CImg<float>(imgA);
+	srcImgB = CImg<float>(imgB);
+  matchedVec.dx = sx;
+  matchedVec.dy = sy;
+	stitchedImg = CImg<float>(srcImgA._width + srcImgB._width - matchedVec.dx, srcImgA._height + abs(matchedVec.dy), 1, 3, 0);
+
+	stitching();
+}
+
+void stitch::stitching() {
+	cimg_forXY(stitchedImg, x, y) {
+		if (matchedVec.dy <= 0) {
+			if (x < srcImgA._width && y < srcImgA._height) {
+				if (x >= (srcImgA._width - matchedVec.dx) && y >= (0 - matchedVec.dy)) {
+					stitchedImg(x, y, 0, 0) = srcImgA(x, y, 0, 0)
+																		* (float)(srcImgA._width - x) / (float)abs(matchedVec.dx)
+																		+ (float)srcImgB(x - (srcImgA._width - matchedVec.dx), y - (0 - matchedVec.dy), 0, 0)
+																		* (float)(x - (srcImgA._width - matchedVec.dx)) / (float)abs(matchedVec.dx);
+					stitchedImg(x, y, 0, 1) = (float)srcImgA(x, y, 0, 1)
+																		* (float)(srcImgA._width - x) / (float)abs(matchedVec.dx)
+																		+ (float)srcImgB(x - (srcImgA._width - matchedVec.dx), y - (0 - matchedVec.dy), 0, 1)
+																		* (float)(x - (srcImgA._width - matchedVec.dx)) / (float)abs(matchedVec.dx);
+					stitchedImg(x, y, 0, 2) = (float)srcImgA(x, y, 0, 2)
+																		* (float)(srcImgA._width - x) / (float)abs(matchedVec.dx)
+																		+ (float)srcImgB(x - (srcImgA._width - matchedVec.dx), y - (0 - matchedVec.dy), 0, 2)
+																		* (float)(x - (srcImgA._width - matchedVec.dx)) / (float)abs(matchedVec.dx);
+				} else {
+					stitchedImg(x, y, 0, 0) = srcImgA(x, y, 0, 0);
+					stitchedImg(x, y, 0, 1) = srcImgA(x, y, 0, 1);
+					stitchedImg(x, y, 0, 2) = srcImgA(x, y, 0, 2);
+				}
+			} else if (x >= (srcImgA._width - matchedVec.dx) && y >= (0 - matchedVec.dy) && y < (0 - matchedVec.dy) + srcImgB._height) {
+				stitchedImg(x, y, 0, 0) = srcImgB(x - (srcImgA._width - matchedVec.dx), y - (0 - matchedVec.dy), 0, 0);
+				stitchedImg(x, y, 0, 1) = srcImgB(x - (srcImgA._width - matchedVec.dx), y - (0 - matchedVec.dy), 0, 1);
+				stitchedImg(x, y, 0, 2) = srcImgB(x - (srcImgA._width - matchedVec.dx), y - (0 - matchedVec.dy), 0, 2);
+			} else {
+				stitchedImg(x, y, 0, 0) = 0;
+        stitchedImg(x, y, 0, 1) = 0;
+      	stitchedImg(x, y, 0, 2) = 0;
+			}
+		} else {
+			if (x < srcImgA._width && y >= matchedVec.dy) {
+				if (x >= (srcImgA._width - matchedVec.dx) && y < srcImgB._height) {
+					stitchedImg(x, y, 0, 0) = (float)srcImgA(x, y - matchedVec.dy, 0, 0)
+																		* (float)(srcImgA._width - x) / (float)abs(matchedVec.dx)
+																		+ (float)srcImgB(x - (srcImgA._width - matchedVec.dx), y, 0, 0)
+																		* (float)(x - (srcImgA._width - matchedVec.dx)) / (float)abs(matchedVec.dx);
+					stitchedImg(x, y, 0, 1) = (float)srcImgA(x, y - matchedVec.dy, 0, 1)
+																		* (float)(srcImgA._width - x) / (float)abs(matchedVec.dx)
+																		+ (float)srcImgB(x - (srcImgA._width - matchedVec.dx), y, 0, 1)
+																		* (float)(x - (srcImgA._width - matchedVec.dx)) / (float)abs(matchedVec.dx);
+					stitchedImg(x, y, 0, 2) = (float)srcImgA(x, y - matchedVec.dy, 0, 2)
+																		* (float)(srcImgA._width - x) / (float)abs(matchedVec.dx)
+																		+ (float)srcImgB(x - (srcImgA._width - matchedVec.dx), y, 0, 2)
+																		* (float)(x - (srcImgA._width - matchedVec.dx)) / (float)abs(matchedVec.dx);
+				} else {
+					stitchedImg(x, y, 0, 0) = srcImgA(x, y - matchedVec.dy, 0, 0);
+					stitchedImg(x, y, 0, 1) = srcImgA(x, y - matchedVec.dy, 0, 1);
+					stitchedImg(x, y, 0, 2) = srcImgA(x, y - matchedVec.dy, 0, 2);
+				}
+			} else if (x >= (srcImgA._width - matchedVec.dx) && y < srcImgB._height) {
+				stitchedImg(x, y, 0, 0) = srcImgB(x - (srcImgA._width - matchedVec.dx), y, 0, 0);
+				stitchedImg(x, y, 0, 1) = srcImgB(x - (srcImgA._width - matchedVec.dx), y, 0, 1);
+				stitchedImg(x, y, 0, 2) = srcImgB(x - (srcImgA._width - matchedVec.dx), y, 0, 2);
+			} else {
+				stitchedImg(x, y, 0, 0) = 0;
+				stitchedImg(x, y, 0, 1) = 0;
+				stitchedImg(x, y, 0, 2) = 0;
+			}
+		}
+	}
+
+	stitchedImg.display("stitchedImg");
+}
 
 void sift::toGray() {
   gray = CImg<float>(src.width(), src.height(), 1, 1);
