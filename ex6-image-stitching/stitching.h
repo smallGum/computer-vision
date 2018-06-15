@@ -104,7 +104,7 @@ private:
 
 public:
   stitch(CImg<float>& imgA, CImg<float>& imgB, int sx, int sy);
-  //void saveStitchedImg(char* stitchedImgAddr);
+  CImg<float>& getStitchedImg() { return stitchedImg; }
 };
 
 stitch::stitch(CImg<float>& imgA, CImg<float>& imgB, int sx, int sy) {
@@ -180,7 +180,7 @@ void stitch::stitching() {
 		}
 	}
 
-	stitchedImg.display("stitchedImg");
+	//stitchedImg.display("stitchedImg");
 }
 
 void sift::toGray() {
@@ -234,7 +234,7 @@ sift::sift(CImg<float>& srcImg) {
   vl_sift_delete(SiftFilt);
   delete [] ImageData;
   ImageData = NULL;
-  src.display();
+  //src.display();
 }
 
 match::match(vector<keyPoint*>& A, vector<keyPoint*>& B, CImg<float>& imgA, CImg<float>& imgB) {
@@ -297,8 +297,8 @@ void match::drawOriginalKeyPoints() {
 		srcImgWithKpA.draw_circle(matchedPairs[i].keyPointA.col, matchedPairs[i].keyPointA.row, 3, yellow, 1.0f);
 		srcImgWithKpB.draw_circle(matchedPairs[i].keyPointB.col, matchedPairs[i].keyPointB.row, 3, yellow, 1.0f);
 	}
-	srcImgWithKpA.display("srcImgAWithKeyPoints");
-	srcImgWithKpB.display("srcImgBWithKeyPoints");
+	//srcImgWithKpA.display("srcImgAWithKeyPoints");
+	//srcImgWithKpB.display("srcImgBWithKeyPoints");
 }
 
 void match::mergeImagesWithLines() {
@@ -328,7 +328,7 @@ void match::mergeImagesWithLines() {
       }
   	}
   }
-  mixImg.display("mergedImg");
+  //mixImg.display("mergedImg");
 
 	const double blue[] = { 0, 255, 255 };
   for (int i = 0; i < matchedPairs.size(); i++) {
@@ -340,7 +340,7 @@ void match::mergeImagesWithLines() {
 
     mixImg.draw_line(xa, ya, xb, yb, blue);
   }
-	mixImg.display("mergedImgWithLine");
+	//mixImg.display("mergedImgWithLine");
 }
 
 void match::RANSAC() {
@@ -431,7 +431,7 @@ void match::drawRealKeyPoints(int maxIndex) {
 		if (vectorGap < INLIERS_GAP) { fixedMatchedImg.draw_line(txa, tya, txb, tyb, blue); }
 	}
 
-	fixedMatchedImg.display("mergedImgWithLine_fixed");
+	//fixedMatchedImg.display("mergedImgWithLine_fixed");
 }
 
 #endif
