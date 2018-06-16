@@ -35,18 +35,19 @@ int main() {
     int choice;
     cin >> choice;
     cin.get();
+    CImg<float> srcA;
 
     switch (choice) {
       case 0:
         return 0;
       case 1:
-        CImg<float> srcA("./images1/1.bmp");
+        srcA = CImg<float>("./images1/1.bmp");
         run(srcA, '2', '4', '1', false);
         srcA.display();
         srcA.save("./result/test1.jpg");
         break;
       case 2:
-        CImg<float> srcA("./images2/1.JPG");
+        srcA = CImg<float>("./images2/1.JPG");
         run(srcA, '2', '9', '2', false);
         run(srcA, '0', '8', '2', true);
         srcA.display();
@@ -54,7 +55,7 @@ int main() {
         break;
       default:
         cout << "no such image! Please enter again!" << endl;
-        break
+        break;
     }
   }
 
